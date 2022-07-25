@@ -18,21 +18,55 @@
 		<script type="module">
             import * as THREE from 'three';
             import { GLTFLoader } from '/three.js/examples/jsm/loaders/GLTFLoader.js';
+            import { Capsule } from '/three.js/examples/jsm/math/Capsule.js';
+
+            const clock = new THREE.Clock();
 
 			const scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x88ccee );
+            scene.fog = new THREE.Fog( 0x88ccee, 0, 50 );
+
 			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            camera.rotation.order = 'YXZ';
 
-			const renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+            const fillLight1 = new THREE.HemisphereLight( 0x4488bb, 0x002244, 0.5 );
+			fillLight1.position.set( 2, 1, 1 );
+			scene.add( fillLight1 );
 
-			const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const geometry = new THREE.BoxGeometry( 20, 1, 20 );
+            const texture = new THREE.TextureLoader().load( "images/gudetama.jpeg" );
+			const material = new THREE.MeshBasicMaterial( { map: texture } );
 			const cube = new THREE.Mesh( geometry, material );
 			scene.add( cube );
 
-			camera.position.z = 5;
+            const renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.VSMShadowMap;
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.toneMapping = THREE.ACESFilmicToneMapping;
+			document.body.appendChild( renderer.domElement );
 
+			camera.position.z = 5;
+            camera.position.y = 5;
+
+            const playerCollider = new Capsule( new THREE.Vector3( 0, 0.35, 0 ), new THREE.Vector3( 0, 1, 0 ), 0.35 );
+            const playerVelocity = new THREE.Vector3();
+			const playerDirection = new THREE.Vector3();
+
+            let playerOnFloor = false;
+
+            document.body.addEventListener( 'mousemove', ( event ) => {
+
+            // if ( document.pointerLockElement === document.body ) {
+
+                camera.rotation.y -= event.movementX / 500;
+                camera.rotation.x -= event.movementY / 500;
+
+            // }   
+
+} );
             window.addEventListener( 'resize', onWindowResize );
 
             function onWindowResize() {
@@ -45,12 +79,15 @@
             }
 
 			function animate() {
-				requestAnimationFrame( animate );
+				const deltaTime = Math.min( 0.05, clock.getDelta() ) / 5;
 
-				cube.rotation.x += 0.01;
-				cube.rotation.y += 0.01;
+                for ( let i = 0; i < 5; i++ ) {
+                }
+				// cube.rotation.x += 0.01;
+				// cube.rotation.y += 0.01;
 
 				renderer.render( scene, camera );
+                requestAnimationFrame( animate );
 			};
 
 			animate();
