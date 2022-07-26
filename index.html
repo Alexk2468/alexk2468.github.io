@@ -22,6 +22,8 @@
 
             const clock = new THREE.Clock();
 
+            const GRAVITY = 30;
+
 			const scene = new THREE.Scene();
             scene.background = new THREE.Color( 0x88ccee );
             scene.fog = new THREE.Fog( 0x88ccee, 0, 50 );
@@ -59,12 +61,12 @@
 
             document.body.addEventListener( 'mousedown', () => {
                 document.body.requestPointerLock();
-                mouseTime = performance.now();
+                //mouseTime = performance.now();
             });
             document.body.addEventListener( 'mousemove', ( event ) => {
                 if ( document.pointerLockElement === document.body ) {
                     camera.rotation.y -= event.movementX / 500;
-                    //camera.rotation.x -= Math.max(-1.5, Math.min(event.movementX / 500, -1.5));
+                    
                     camera.rotation.x -= event.movementY / 500;
                     if (camera.rotation.x > 1.5) {
                         camera.rotation.x = 1.5
@@ -85,14 +87,36 @@
 
             }
 
+            function updatePlayer(deltaTime) {
+                if (!playerOnFloor) {
+                    playerVelocity.y -= GRAVITY * deltaTime;
+                }
+                const deltaPosition = playerVelocity.clone().multiplyScalar( deltaTime );
+                playerCollider.translate( deltaPosition );
+                camera.position.copy( playerCollider.end );
+            }
+
+            function teleportPlayerIfOob() {
+                if (camera.position.y <= -10) {
+                    playerCollider.start.set( 0, 7.35, 0 );
+					playerCollider.end.set( 0, 7, 0 );
+					playerCollider.radius = 0.35;
+					camera.position.copy( playerCollider.end );
+					camera.rotation.set( 0, 0, 0 );
+                    playerVelocity.y = 0; // repalce later when collisions are working
+                }
+            }
 			function animate() {
 				const deltaTime = Math.min( 0.05, clock.getDelta() ) / 5;
 
                 for ( let i = 0; i < 5; i++ ) {
+                    updatePlayer(deltaTime);
+                    teleportPlayerIfOob();
                 }
 				// cube.rotation.x += 0.01;
 				// cube.rotation.y += 0.01;
-                console.log(camera.rotation.x)
+                // console.log(camera.rotation.x)
+                
 				renderer.render( scene, camera );
                 requestAnimationFrame( animate );
 			};
