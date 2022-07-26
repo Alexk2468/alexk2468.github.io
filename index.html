@@ -19,6 +19,7 @@
             import * as THREE from 'three';
             import { GLTFLoader } from '/three.js/examples/jsm/loaders/GLTFLoader.js';
             import { Capsule } from '/three.js/examples/jsm/math/Capsule.js';
+            import { Octree } from '/three.js/examples/jsm/math/Octree.js';
 
             const clock = new THREE.Clock();
 
@@ -53,9 +54,13 @@
 			camera.position.z = 5;
             camera.position.y = 5;
 
-            const playerCollider = new Capsule( new THREE.Vector3( 0, 0.35, 0 ), new THREE.Vector3( 0, 1, 0 ), 0.35 );
+            const playerCollider = new Capsule( new THREE.Vector3( 0, 17.35, 0 ), new THREE.Vector3( 0, 17, 0 ), 0.35 );
             const playerVelocity = new THREE.Vector3();
 			const playerDirection = new THREE.Vector3();
+
+            const worldOctree = new Octree();
+            worldOctree.fromGraphNode(cube);
+            console.log(worldOctree);
 
             let playerOnFloor = false;
 
@@ -87,23 +92,40 @@
 
             }
 
+            function playerCollisions() {
+                const result = worldOctree.capsuleIntersect(playerCollider);
+                playerOnFloor = false;
+
+                if (result) {
+                    playerOnFloor = result.normal.y > 0;
+                    if (!playerOnFloor) {
+                        playerVelocity.addScaledVector(result.normal, -result.normal.dot(playerVelocity))
+                    }
+                    playerCollider.translate(result.normal.multiplyScalar(result.depth));
+                }
+
+            }
+
             function updatePlayer(deltaTime) {
                 if (!playerOnFloor) {
                     playerVelocity.y -= GRAVITY * deltaTime;
                 }
                 const deltaPosition = playerVelocity.clone().multiplyScalar( deltaTime );
                 playerCollider.translate( deltaPosition );
+
+                playerCollisions();
+
                 camera.position.copy( playerCollider.end );
             }
 
             function teleportPlayerIfOob() {
                 if (camera.position.y <= -10) {
-                    playerCollider.start.set( 0, 7.35, 0 );
-					playerCollider.end.set( 0, 7, 0 );
+                    playerCollider.start.set( 0, 17.35, 0 );
+					playerCollider.end.set( 0, 17, 0 );
 					playerCollider.radius = 0.35;
 					camera.position.copy( playerCollider.end );
 					camera.rotation.set( 0, 0, 0 );
-                    playerVelocity.y = 0; // repalce later when collisions are working
+                    // playerVelocity.y = 0; // repalce later when collisions are working
                 }
             }
 			function animate() {
