@@ -63,6 +63,19 @@
             console.log(worldOctree);
 
             let playerOnFloor = false;
+            const keyStates = {};
+
+            document.addEventListener( 'keydown', ( event ) => {
+
+				keyStates[ event.code ] = true;
+
+			} );
+
+			document.addEventListener( 'keyup', ( event ) => {
+
+				keyStates[ event.code ] = false;
+
+			} );
 
             document.body.addEventListener( 'mousedown', () => {
                 document.body.requestPointerLock();
@@ -90,6 +103,14 @@
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
 
+            }
+
+            function controls(deltaTime) {
+                if (keyStates['Space']) {
+                    if (playerOnFloor) {
+                        playerVelocity.y = 15;
+                    }
+                }
             }
 
             function playerCollisions() {
@@ -132,6 +153,7 @@
 				const deltaTime = Math.min( 0.05, clock.getDelta() ) / 5;
 
                 for ( let i = 0; i < 5; i++ ) {
+                    controls(deltaTime);
                     updatePlayer(deltaTime);
                     teleportPlayerIfOob();
                 }
