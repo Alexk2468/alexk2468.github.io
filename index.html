@@ -121,7 +121,10 @@
             }
 
             function controls(deltaTime) {
-                const speedDelta = deltaTime*5;
+                
+                const speedDelta = deltaTime*8;
+                
+                
                 if (keyStates['KeyW']) {
                     playerVelocity.add(getForwardVector().multiplyScalar(speedDelta));
                 }
@@ -156,9 +159,14 @@
             }
 
             function updatePlayer(deltaTime) {
+                // console.log(deltaTime);
+                let friction = Math.exp(-4*deltaTime)-1;
                 if (!playerOnFloor) {
                     playerVelocity.y -= GRAVITY * deltaTime;
+                    friction *= 0.1;
                 }
+
+                playerVelocity.addScaledVector(playerVelocity, friction);
                 const deltaPosition = playerVelocity.clone().multiplyScalar( deltaTime );
                 playerCollider.translate( deltaPosition );
 
