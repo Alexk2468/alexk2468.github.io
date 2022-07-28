@@ -11,15 +11,15 @@
         <script type="importmap">
 			{
 				"imports": {
-					"three": "/three.js/build/three.module.js"
+					"three": "./three.js/build/three.module.js"
 				}
 			}
 		</script>
 		<script type="module">
             import * as THREE from 'three';
-            import { GLTFLoader } from '/three.js/examples/jsm/loaders/GLTFLoader.js';
-            import { Capsule } from '/three.js/examples/jsm/math/Capsule.js';
-            import { Octree } from '/three.js/examples/jsm/math/Octree.js';
+            import { GLTFLoader } from './three.js/examples/jsm/loaders/GLTFLoader.js';
+            import { Capsule } from './three.js/examples/jsm/math/Capsule.js';
+            import { Octree } from './three.js/examples/jsm/math/Octree.js';
 
             const clock = new THREE.Clock();
 
